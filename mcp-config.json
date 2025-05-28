@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "tone": {
+      "command": "node",
+      "args": ["dist/index.js"],
+      "cwd": ".",
+      "env": {
+        "TONE_AI_USER_SECRET": "${TONE_AI_USER_SECRET}"
+      }
+    }
+  }
+} 
