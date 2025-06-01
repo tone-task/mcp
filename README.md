@@ -2,7 +2,7 @@
 
 ## What's tone?
 
-tone is a team task app for humans and AI.
+tone is a team task app for humans and AI.  
 For using from LLMs, you can use this MCP server.
 
 ## How to use in MCP Client
