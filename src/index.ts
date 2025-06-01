@@ -5,12 +5,38 @@ import { z } from "zod";
 
 // Constants
 const API_BASE = "https://api.tone-task.app";
-const TONE_AI_USER_SECRET = process.env.TONE_AI_USER_SECRET || "";
 
-// 環境変数がセットされていない場合はエラーを出力して終了
+// コマンドライン引数を解析
+function parseArguments(): string {
+    const args = process.argv.slice(2);
+    
+    // --secret または -s フラグを探す
+    for (let i = 0; i < args.length; i++) {
+        if ((args[i] === '--secret' || args[i] === '-s') && i + 1 < args.length) {
+            return args[i + 1];
+        }
+        // --secret=value の形式もサポート
+        if (args[i].startsWith('--secret=')) {
+            return args[i].substring('--secret='.length);
+        }
+    }
+    
+    // 環境変数もフォールバックとして確認
+    return process.env.TONE_AI_USER_SECRET || "";
+}
+
+const TONE_AI_USER_SECRET = parseArguments();
+
+// シークレットが設定されていない場合はエラーを出力して終了
 if (!TONE_AI_USER_SECRET) {
-    console.error("エラー: 環境変数 TONE_AI_USER_SECRET が設定されていません。");
-    console.error("export TONE_AI_USER_SECRET='あなたのシークレット値' を実行してください。");
+    console.error("エラー: TONE_AI_USER_SECRET が設定されていません。");
+    console.error("使用方法:");
+    console.error("  node src/index.ts --secret あなたのシークレット値");
+    console.error("  node src/index.ts -s あなたのシークレット値");
+    console.error("  node src/index.ts --secret=あなたのシークレット値");
+    console.error("");
+    console.error("または環境変数として設定:");
+    console.error("  export TONE_AI_USER_SECRET='あなたのシークレット値'");
     process.exit(1);
 }
 
