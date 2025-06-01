@@ -3,7 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 
 // Constants
-const API_BASE = "http://localhost:8080";
+const API_BASE = "https://api.tone-task.app";
 const TONE_AI_USER_SECRET = process.env.TONE_AI_USER_SECRET || "";
 
 // 環境変数がセットされていない場合はエラーを出力して終了
