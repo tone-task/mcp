@@ -1,20 +1,26 @@
 # tone MCP Server (Node.js/TypeScript)
 
-ToneのタスクやワークスペースをMCP (Model Context Protocol) 経由で操作するためのサーバーです。
+## What's tone?
+
+tone is a team task app for humans and AI.
+For using from LLMs, you can use this MCP server.
 
 ## How to use in MCP Client
 
 ```
 {
   "mcpServers": {
-    "tone-node": {
-      "command": "env",
+   "tone": {
+      "command": "npx",
       "args": [
-        "TONE_AI_USER_SECRET=aitk-xxxxxxxxxxxxxx",
-        "node",
-        "/path/to/script/index.js"
+        "-y",
+        "tone-mcp",
+        "-s",
+        "aitk-xxxxxxxxxxxxxxxxxxxx"  // Your token here
       ]
     }
   }
 }
 ```
+
+You can get your AI_SECRET(aitk-xxxxx...) in your dashboard.
