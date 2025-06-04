@@ -72,7 +72,7 @@ async function makeToneRequestGet(url: string, body: Record<string, any>): Promi
 
         return await response.json();
     } catch (error) {
-        return `エラーが発生しました: ${error instanceof Error ? error.message : String(error)}`;
+        return `エラーが発生しました: ${JSON.stringify(body)} ${error instanceof Error ? error.message : String(error)}`;
     }
 }
 
@@ -183,11 +183,9 @@ server.tool(
 
 server.tool(
     "get_mytasks",
+    "Get my own tasks.",
     {
-        description: "Get my own tasks.",
-        inputSchema: z.object({
-            workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool.")
-        })
+        workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool.")
     },
     async ({ workspace_id }) => {
         const url = "/proto.task.v1.TaskService/GetMyTasks";
@@ -254,20 +252,19 @@ server.tool(
 
 server.tool(
     "get_tasks",
+    "Get todo tasks by list id. this task contains other members tasks.",
     {
-        description: "Get todo tasks by list id. this task contains other members tasks.",
-        inputSchema: z.object({
-            workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
-            teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
-            list_id: z.string().describe("list id. you can get it from get_workspaces tool.")
-        })
+        workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
+        teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id. you can get it from get_workspaces tool."),
     },
     async ({ workspace_id, teamspace_id, list_id }) => {
         const url = "/proto.task.v1.TaskService/GetTasks";
+
         const data = await makeToneRequestGet(url, {
-            workspace_id,
-            teamspace_id,
-            list_id,
+            workspace_id: workspace_id,
+            teamspace_id: teamspace_id,
+            list_id: list_id,
             order_by: "custom_position"
         });
         
@@ -293,11 +290,9 @@ server.tool(
 
 server.tool(
     "get_users",
+    "Toneのユーザー一覧を取得します。",
     {
-        description: "Toneのユーザー一覧を取得します。",
-        inputSchema: z.object({
-            workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool.")
-        })
+        workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool.")
     },
     async ({ workspace_id }) => {
         const url = "/proto.user.v1.UserService/GetUsers";
@@ -335,16 +330,14 @@ server.tool(
 
 server.tool(
     "create_task",
+    "Create a task in tone.",
     {
-        description: "Create a task in tone.",
-        inputSchema: z.object({
-            workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
-            teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
-            list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
-            title: z.string().describe("task title. You can use up to 50 characters, but it's better to keep it within 20 characters."),
-            description: z.string().describe("task description. you can use markdown."),
-            assign_user_ids: z.array(z.string()).describe("assignee id list. you can get assignee id from get_users tool. by default, you should set it yourself.")
-        })
+        workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
+        teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
+        title: z.string().describe("task title. You can use up to 50 characters, but it's better to keep it within 20 characters."),
+        description: z.string().describe("task description. you can use markdown."),
+        assign_user_ids: z.array(z.string()).describe("assignee id list. you can get assignee id from get_users tool. by default, you should set it yourself.")
     },
     async ({ workspace_id, teamspace_id, list_id, title, description, assign_user_ids }) => {
         const url = "/proto.task.v1.TaskService/CreateTask";
@@ -368,15 +361,13 @@ server.tool(
 
 server.tool(
     "update_task_title",
+    "タスクのタイトルを更新します。",
     {
-        description: "タスクのタイトルを更新します。",
-        inputSchema: z.object({
-            workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
-            teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
-            list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
-            task_id: z.string().describe("task id. you can get it from get_tasks tool."),
-            title: z.string().describe("new task title. You can use up to 50 characters, but it's better to keep it within 20 characters.")
-        })
+        workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
+        teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
+        task_id: z.string().describe("task id. you can get it from get_tasks tool."),
+        title: z.string().describe("new task title. You can use up to 50 characters, but it's better to keep it within 20 characters.")
     },
     async ({ workspace_id, teamspace_id, list_id, task_id, title }) => {
         const url = "/proto.task.v1.TaskService/UpdateTaskTitle";
@@ -399,15 +390,13 @@ server.tool(
 
 server.tool(
     "update_task_description",
+    "タスクの説明を更新します。",
     {
-        description: "タスクの説明を更新します。",
-        inputSchema: z.object({
-            workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
-            teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
-            list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
-            task_id: z.string().describe("task id. you can get it from get_tasks tool."),
-            description: z.string().describe("new task description. you can use markdown.")
-        })
+        workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
+        teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
+        task_id: z.string().describe("task id. you can get it from get_tasks tool."),
+        description: z.string().describe("new task description. you can use markdown.")
     },
     async ({ workspace_id, teamspace_id, list_id, task_id, description }) => {
         const url = "/proto.task.v1.TaskService/UpdateTaskDescription";
@@ -430,15 +419,13 @@ server.tool(
 
 server.tool(
     "update_task_status",
+    "Update the status of a task in tone. you can update multiple tasks at once.",
     {
-        description: "Update the status of a task in tone. you can update multiple tasks at once.",
-        inputSchema: z.object({
-            workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
-            teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
-            list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
-            task_ids: z.array(z.string()).describe("task id list"),
-            status: z.string().describe('task status. you can choose from "TODO", "DOING", "DONE"')
-        })
+        workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
+        teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
+        task_ids: z.array(z.string()).describe("task id list"),
+        status: z.string().describe('task status. you can choose from "TODO", "DOING", "DONE"')
     },
     async ({ workspace_id, teamspace_id, list_id, task_ids, status }) => {
         const url = "/proto.task.v1.TaskService/BatchUpdateTaskStatus";
@@ -461,15 +448,13 @@ server.tool(
 
 server.tool(
     "update_task_assignees",
+    "Update the assignees of a task in tone. you can update multiple tasks at once.",
     {
-        description: "Update the assignees of a task in tone. you can update multiple tasks at once.",
-        inputSchema: z.object({
-            workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
-            teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
-            list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
-            task_ids: z.array(z.string()).describe("task id list"),
-            assign_user_ids: z.array(z.string()).describe("assignee id list. you can get assignee id from get_users tool.")
-        })
+        workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
+        teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
+        task_ids: z.array(z.string()).describe("task id list"),
+        assign_user_ids: z.array(z.string()).describe("assignee id list. you can get assignee id from get_users tool.")
     },
     async ({ workspace_id, teamspace_id, list_id, task_ids, assign_user_ids }) => {
         const url = "/proto.task.v1.TaskService/BatchUpdateTaskAssignees";
@@ -492,13 +477,11 @@ server.tool(
 
 server.tool(
     "create_list",
+    "リストを作成します。",
     {
-        description: "リストを作成します。",
-        inputSchema: z.object({
-            workspace_id: z.string().describe("ワークスペースID。get_workspacesツールから取得できます。"),
-            teamspace_id: z.string().describe("チームスペースID。get_workspacesツールから取得できます。"),
-            name: z.string().describe("作成するリストの名前。")
-        })
+        workspace_id: z.string().describe("ワークスペースID。get_workspacesツールから取得できます。"),
+        teamspace_id: z.string().describe("チームスペースID。get_workspacesツールから取得できます。"),
+        name: z.string().describe("作成するリストの名前。")
     },
     async ({ workspace_id, teamspace_id, name }) => {
         const url = "/proto.group.v1.GroupService/CreateList";
