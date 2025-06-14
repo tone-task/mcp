@@ -121,12 +121,16 @@ function formatTasks(content: Record<string, any>): string {
     const assignees = content.assignees || [];
     const assigneeList = assignees.map((assignee: Record<string, any>) => formatAssignee(assignee));
     
+    const tags = content.tags || [];
+    const tagList = tags.map((tag: Record<string, any>) => tag.name || 'Unknown').filter(Boolean);
+    
     return `
 タスクID: ${content.id || 'Unknown'}
 タイトル: ${(content.title || 'Unknown').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '\\"').replace(/\n/g, '\\n')}
 ステータス: ${content.status || 'Unknown'}
 説明: ${(content.description || 'Unknown').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '\\"').replace(/\n/g, '\\n')}
 担当: ${assigneeList.length > 0 ? '\n- ' + assigneeList.join('\n- ') : 'なし'}
+タグ: ${tagList.length > 0 ? tagList.join(', ') : 'なし'}
 `;
 }
 
