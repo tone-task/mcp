@@ -31,9 +31,9 @@ const TONE_AI_USER_SECRET = parseArguments();
 if (!TONE_AI_USER_SECRET) {
     console.error("エラー: TONE_AI_USER_SECRET が設定されていません。");
     console.error("使用方法:");
-    console.error("  node src/index.ts --secret あなたのシークレット値");
-    console.error("  node src/index.ts -s あなたのシークレット値");
-    console.error("  node src/index.ts --secret=あなたのシークレット値");
+    console.error("  npx tone-mcp --secret あなたのシークレット値");
+    console.error("  npx tone-mcp -s あなたのシークレット値");
+    console.error("  npx tone-mcp --secret=あなたのシークレット値");
     console.error("");
     console.error("または環境変数として設定:");
     console.error("  export TONE_AI_USER_SECRET='あなたのシークレット値'");
@@ -117,6 +117,23 @@ function formatAssignee(assignee: Record<string, any>): string {
     return `${assignee.displayName}（ID: ${assignee.id || 'Unknown'}）`;
 }
 
+function formatSubtask(subtask: Record<string, any>): string {
+    const subtaskAssignees = subtask.assignees || [];
+    const subtaskAssigneeList = subtaskAssignees.map((assignee: Record<string, any>) => formatAssignee(assignee));
+    
+    const subtaskTags = subtask.tags || [];
+    const subtaskTagList = subtaskTags.map((tag: Record<string, any>) => tag.name || 'Unknown').filter(Boolean);
+    
+    const subtaskDueDate = subtask.dueDate ? new Date(subtask.dueDate).toISOString() : '';
+    const subtaskDescription = subtask.description ? ` - 説明: ${(subtask.description).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '\\"').replace(/\n/g, '\\n')}` : '';
+    
+    const dueDatePart = subtaskDueDate ? ` - 期限: ${subtaskDueDate}` : '';
+    const assigneePart = subtaskAssigneeList.length > 0 ? ` - 担当: ${subtaskAssigneeList.join(', ')}` : '';
+    const tagPart = subtaskTagList.length > 0 ? ` - タグ: ${subtaskTagList.join(', ')}` : '';
+    
+    return `  - ${subtask.title || 'Unknown'} (${subtask.status || 'Unknown'})${subtaskDescription}${dueDatePart}${assigneePart}${tagPart}`;
+}
+
 function formatTasks(content: Record<string, any>): string {
     const assignees = content.assignees || [];
     const assigneeList = assignees.map((assignee: Record<string, any>) => formatAssignee(assignee));
@@ -124,13 +141,21 @@ function formatTasks(content: Record<string, any>): string {
     const tags = content.tags || [];
     const tagList = tags.map((tag: Record<string, any>) => tag.name || 'Unknown').filter(Boolean);
     
+    const subtasks = content.subtasks || [];
+    const subtaskList = subtasks.map(formatSubtask);
+    
+    // Format due date in ISO 8601 format
+    const dueDate = content.dueDate ? new Date(content.dueDate).toISOString() : 'なし';
+    
     return `
 タスクID: ${content.id || 'Unknown'}
 タイトル: ${(content.title || 'Unknown').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '\\"').replace(/\n/g, '\\n')}
 ステータス: ${content.status || 'Unknown'}
 説明: ${(content.description || 'Unknown').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '\\"').replace(/\n/g, '\\n')}
+期限: ${dueDate}
 担当: ${assigneeList.length > 0 ? '\n- ' + assigneeList.join('\n- ') : 'なし'}
 タグ: ${tagList.length > 0 ? tagList.join(', ') : 'なし'}
+サブタスク: ${subtaskList.length > 0 ? '\n' + subtaskList.join('\n') : 'なし'}
 `;
 }
 
@@ -287,6 +312,37 @@ server.tool(
             content: [{
                 type: "text",
                 text: tasks.join("\n---\n")
+            }]
+        };
+    }
+);
+
+server.tool(
+    "get_task_by_id",
+    "Get a specific task by its task ID.",
+    {
+        task_id: z.string().describe("task id. Format: ta-xxxxxxxxxx")
+    },
+    async ({ task_id }) => {
+        const url = "/proto.task.v1.TaskService/GetTaskByTaskID";
+        const data = await makeToneRequestGet(url, { task_id });
+        
+        if (typeof data === "string" || !data || !("task" in data)) {
+            return {
+                content: [{
+                    type: "text",
+                    text: typeof data === "string" ? data : "タスクを取得できませんでした。"
+                }]
+            };
+        }
+        
+        const task = data.task as Record<string, any>;
+        const formattedTask = formatTasks(task);
+        
+        return {
+            content: [{
+                type: "text",
+                text: formattedTask
             }]
         };
     }
