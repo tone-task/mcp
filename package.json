@@ -1,6 +1,6 @@
 {
   "name": "tone-mcp",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "tone MCP Server",
   "main": "dist/index.js",
   "type": "module",
