@@ -156,6 +156,7 @@ function formatTasks(content: Record<string, any>): string {
 担当: ${assigneeList.length > 0 ? '\n- ' + assigneeList.join('\n- ') : 'なし'}
 タグ: ${tagList.length > 0 ? tagList.join(', ') : 'なし'}
 サブタスク: ${subtaskList.length > 0 ? '\n' + subtaskList.join('\n') : 'なし'}
+リスト: ${content.listName || "Unknown"} (${content.listId || 'Unknown'})
 `;
 }
 
@@ -284,8 +285,8 @@ server.tool(
     "Get todo tasks by list id. this task contains other members tasks.",
     {
         workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
-        teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
-        list_id: z.string().describe("list id. you can get it from get_workspaces tool."),
+        teamspace_id: z.string().describe("teamspace id related to the list. you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id user specified (or you can get it from get_workspaces tool.)"),
     },
     async ({ workspace_id, teamspace_id, list_id }) => {
         const url = "/proto.task.v1.TaskService/GetTasks";
@@ -321,11 +322,12 @@ server.tool(
     "get_task_by_id",
     "Get a specific task by its task ID.",
     {
-        task_id: z.string().describe("task id. Format: ta-xxxxxxxxxx")
+        workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
+        task_id: z.string().describe("task id user specified. Format: ta-xxxxxxxxxx")
     },
-    async ({ task_id }) => {
+    async ({ workspace_id, task_id }) => {
         const url = "/proto.task.v1.TaskService/GetTaskByTaskID";
-        const data = await makeToneRequestGet(url, { task_id });
+        const data = await makeToneRequestGet(url, { workspace_id, task_id });
         
         if (typeof data === "string" || !data || !("task" in data)) {
             return {
@@ -393,8 +395,8 @@ server.tool(
     "Create a task in tone.",
     {
         workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
-        teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
-        list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
+        teamspace_id: z.string().describe("teamspace id related to the list. list is specified by user or  you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id related to the task. you can get it from task detail or get_workspaces tool."),
         title: z.string().describe("task title. You can use up to 50 characters, but it's better to keep it within 20 characters."),
         description: z.string().describe("task description. you can use markdown."),
         assign_user_ids: z.array(z.string()).describe("assignee id list. you can get assignee id from get_users tool. by default, you should set it yourself.")
@@ -424,8 +426,8 @@ server.tool(
     "タスクのタイトルを更新します。",
     {
         workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
-        teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
-        list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
+        teamspace_id: z.string().describe("teamspace id related to the list. list is specified by user or  you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id related to the task. you can get it from task detail or get_workspaces tool."),
         task_id: z.string().describe("task id. you can get it from get_tasks tool."),
         title: z.string().describe("new task title. You can use up to 50 characters, but it's better to keep it within 20 characters.")
     },
@@ -453,8 +455,8 @@ server.tool(
     "タスクの説明を更新します。",
     {
         workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
-        teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
-        list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
+        teamspace_id: z.string().describe("teamspace id related to the list. list is specified by user or  you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id related to the task. you can get it from task detail or get_workspaces tool."),
         task_id: z.string().describe("task id. you can get it from get_tasks tool."),
         description: z.string().describe("new task description. you can use markdown.")
     },
@@ -482,8 +484,8 @@ server.tool(
     "Update the status of a task in tone. you can update multiple tasks at once.",
     {
         workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
-        teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
-        list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
+        teamspace_id: z.string().describe("teamspace id related to the list. list is specified by user or  you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id related to the task. you can get it from task detail or get_workspaces tool."),
         task_ids: z.array(z.string()).describe("task id list"),
         status: z.string().describe('task status. you can choose from "TODO", "DOING", "DONE"')
     },
@@ -511,8 +513,8 @@ server.tool(
     "Update the assignees of a task in tone. you can update multiple tasks at once.",
     {
         workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
-        teamspace_id: z.string().describe("teamspace id. you can get it from get_workspaces tool."),
-        list_id: z.string().describe("list id. you can get it from get_workspaces tool or task detail."),
+        teamspace_id: z.string().describe("teamspace id related to the list. you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id related to the task. you can get it from task detail or get_workspaces tool."),
         task_ids: z.array(z.string()).describe("task id list"),
         assign_user_ids: z.array(z.string()).describe("assignee id list. you can get assignee id from get_users tool.")
     },
@@ -537,11 +539,11 @@ server.tool(
 
 server.tool(
     "create_list",
-    "リストを作成します。",
+    "Create a list in tone.",
     {
-        workspace_id: z.string().describe("ワークスペースID。get_workspacesツールから取得できます。"),
-        teamspace_id: z.string().describe("チームスペースID。get_workspacesツールから取得できます。"),
-        name: z.string().describe("作成するリストの名前。")
+        workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
+        teamspace_id: z.string().describe("teamspace id user specified (or you can get it from get_workspaces tool.)"),
+        name: z.string().describe("name of the list to create")
     },
     async ({ workspace_id, teamspace_id, name }) => {
         const url = "/proto.group.v1.GroupService/CreateList";
