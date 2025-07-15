@@ -41,7 +41,7 @@ jobs:
         npx @anthropic-ai/dxt pack
         
         # Rename to include version
-        mv tone-mcp.dxt tone-mcp-v${VERSION}.dxt
+        mv mcp.dxt tone-mcp-v${VERSION}.dxt
         
         # Also create a copy without version for consistency
         cp tone-mcp-v${VERSION}.dxt tone-mcp.dxt
