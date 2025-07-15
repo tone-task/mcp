@@ -20,7 +20,7 @@ Cursorに導入する場合、toneの管理からディープリンクを使っ�
 ### 方法2. Claude Desktopに設定する（DXT）
 Claude Desktopに導入する場合、dxtファイルを使って簡単にインストールできます。
 
-1. リリースページ から最新の tone-mcp.dxt をダウンロード
+1. [リリースページ](https://github.com/tone-task/mcp/releases) から最新の `tone-mcp.dxt` をダウンロード
 2. Claude Desktopを起動し、設定 > エクステンション を開く
 3. ダウンロードしたdxtファイルをClaude Desktopにドラッグ＆ドロップ
 4. toneの管理画面から発行したAIユーザーのシークレットを入力する
