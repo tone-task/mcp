@@ -5,7 +5,7 @@
 tone（トーン）は人とAIのためのチームタスク管理サービスです。  
 このMCPサーバーを使うことで、AIツールからタスクの作成や更新ができるようになります。  
   
-toneの登録はこちらから：
+toneの登録はこちらから：  
 [https://tone-task.com/](https://tone-task.com/)
 
 
@@ -13,7 +13,7 @@ toneの登録はこちらから：
 
 ### 方法1. Cursorに設定する
 
-Cursorに導入する場合、toneの管理からディープリンクを使って簡単にセットアップできます。
+Cursorに導入する場合、toneの管理からディープリンクを使って簡単にセットアップできます。  
 [詳しい手順はこちら](https://comet-geometry-805.notion.site/tone-MCP-2098920087578019be99eda5f1d04cd6)をご覧ください。
 
 
