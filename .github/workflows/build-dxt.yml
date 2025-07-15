@@ -41,14 +41,14 @@ jobs:
         npx @anthropic-ai/dxt pack
         
         # Rename to include version
-        mv microcms-document-mcp-server.dxt microcms-document-mcp-server-v${VERSION}.dxt
+        mv tone-mcp.dxt tone-mcp-v${VERSION}.dxt
         
         # Also create a copy without version for consistency
-        cp microcms-document-mcp-server-v${VERSION}.dxt microcms-document-mcp-server.dxt
+        cp tone-mcp-v${VERSION}.dxt tone-mcp.dxt
         
     - name: Verify DXT creation
       run: |
-        if [ ! -f microcms-document-mcp-server.dxt ]; then
+        if [ ! -f tone-mcp.dxt ]; then
           echo "Error: DXT file was failed to be created"
           exit 1
         fi
@@ -57,10 +57,10 @@ jobs:
     - name: Upload DXT as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: microcms-document-mcp-server-dxt
+        name: tone-mcp-dxt
         path: |
-          microcms-document-mcp-server.dxt
-          microcms-document-mcp-server-v*.dxt
+          tone-mcp.dxt
+          tone-mcp-v*.dxt
         
   release:
     needs: build
@@ -71,7 +71,7 @@ jobs:
     - name: Download DXT artifact
       uses: actions/download-artifact@v4
       with:
-        name: microcms-document-mcp-server-dxt
+        name: tone-mcp-dxt
         
     - name: List downloaded files
       run: ls -la
@@ -80,7 +80,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          microcms-document-mcp-server.dxt
-          microcms-document-mcp-server-v*.dxt
+          tone-mcp.dxt
+          tone-mcp-v*.dxt
         generate_release_notes: true
         fail_on_unmatched_files: true
