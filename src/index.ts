@@ -29,7 +29,7 @@ const TONE_AI_USER_SECRET = parseArguments();
 
 // シークレットが設定されていない場合はエラーを出力して終了
 if (!TONE_AI_USER_SECRET) {
-    console.error("エラー: TONE_AI_USER_SECRET が設定されていません。");
+console.error("エラー: TONE_AI_USER_SECRET が設定されていません。");
     console.error("使用方法:");
     console.error("  npx tone-mcp --secret あなたのシークレット値");
     console.error("  npx tone-mcp -s あなたのシークレット値");

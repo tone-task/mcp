@@ -1,0 +1,94 @@
+{
+    "dxt_version": "0.1",
+    "name": "tone-mcp",
+    "display_name": "tone MCPサーバー",
+    "version": "0.2.0",
+    "description": "toneのMCP Serverです。タスク管理サービスtoneのタスクにLLMがアクセスできます。",
+    "icon": "assets/icon.png",
+    "author": {
+        "name": "tone-task",
+        "url": "https://github.com/tone-task"
+    },
+    "server": {
+        "type": "node",
+        "entry_point": "dist/index.js",
+        "mcp_config": {
+            "command": "node",
+            "args": [
+                "${__dirname}/dist/index.js"
+            ],
+            "env": {
+                "TONE_AI_USER_SECRET": "${user_config.TONE_AI_USER_SECRET}"
+            }
+        }
+    },
+    "tools": [
+        {
+            "name": "get_myself",
+            "description": "自分自身のユーザー情報を取得します。"
+        },
+        {
+            "name": "get_mytasks",
+            "description": "自分のタスクを取得します。"
+        },
+        {
+            "name": "get_workspaces",
+            "description": "ワークスペース情報を取得します。"
+        },
+        {
+            "name": "get_tasks",
+            "description": "指定されたリストのタスクを取得します。"
+        },
+        {
+            "name": "get_task_by_id",
+            "description": "タスクIDからタスクを取得します。"
+        },
+        {
+            "name": "get_users",
+            "description": "ユーザー一覧を取得します。"
+        },
+        {
+            "name": "create_task",
+            "description": "新しいタスクを作成します。"
+        },
+        {
+            "name": "update_task_title",
+            "description": "タスクのタイトルを更新します。"
+        },
+        {
+            "name": "update_task_description",
+            "description": "タスクの説明を更新します。"
+        },
+        {
+            "name": "update_task_status",
+            "description": "タスクのステータスを更新します。"
+        },
+        {
+            "name": "update_task_assignees",
+            "description": "タスクの担当者を更新します。"
+        },
+        {
+            "name": "create_list",
+            "description": "新しいリストを作成します。"
+        }
+    ],
+    "user_config": {
+        "TONE_AI_USER_SECRET": {
+          "type": "string",
+          "title": "tone AIユーザーのシークレット値",
+          "description": "toneの管理画面で発行したシークレットを入力してください。",
+          "required": true,
+          "sensitive": true
+        }
+    },
+    "keywords": [
+        "tone",
+        "task",
+        "mcp"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/tone-task/mcp"
+    }
+}
