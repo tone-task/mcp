@@ -562,6 +562,35 @@ server.tool(
     }
 );
 
+server.tool(
+    "update_task_due_date",
+    "タスクの期日（DueDate）を変更します。繰り返しタスクのDueDate更新はMCPでは非対応です。",
+    {
+        workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
+        teamspace_id: z.string().describe("teamspace id related to the list. you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id related to the task. you can get it from task detail or get_workspaces tool."),
+        task_ids: z.array(z.string()).describe("task id list"),
+        due_date: z.string().describe("新しい期日（ISO 8601形式の文字列）。例: 2024-07-01T00:00:00Z")
+    },
+    async ({ workspace_id, teamspace_id, list_id, task_ids, due_date }) => {
+        // 繰り返しタスクのDueDate更新はMCPでは非対応です。
+        const url = "/proto.task.v1.TaskService/BatchUpdateTaskDueDate";
+        const result = await makeToneRequestCreate(url, {
+            workspace_id,
+            teamspace_id,
+            list_id,
+            task_ids,
+            due_date
+        });
+        return {
+            content: [{
+                type: "text",
+                text: result
+            }]
+        };
+    }
+);
+
 // Main function
 async function main() {
     const transport = new StdioServerTransport();
