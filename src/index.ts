@@ -661,7 +661,7 @@ server.tool(
             
             return `
 テンプレートID: ${template.id || 'Unknown'}
-テンプレート名: ${template.name || 'Unknown'}
+テンプレート名: ${template.title || 'Unknown'}
 説明: ${template.description || 'なし'}
 作成日時: ${template.createdAt || 'Unknown'}
 更新日時: ${template.updatedAt || 'Unknown'}
