@@ -422,6 +422,39 @@ server.tool(
 );
 
 server.tool(
+    "create_sub_task",
+    "Create a sub-task in tone.",
+    {
+        workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
+        teamspace_id: z.string().describe("teamspace id related to the list. list is specified by user or  you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id related to the task. you can get it from task detail or get_workspaces tool."),
+        parent_task_id: z.string().describe("parent task id. you can get it from get_tasks tool or ask the user."),
+        title: z.string().describe("task title. You can use up to 50 characters, but it's better to keep it within 20 characters."),
+        description: z.string().describe("task description. you can use markdown."),
+        assign_user_ids: z.array(z.string()).describe("assignee id list. you can get assignee id from get_users tool. by default, you should set it yourself.")
+    },
+    async ({ workspace_id, teamspace_id, list_id, parent_task_id, title, description, assign_user_ids }) => {
+        const url = "/proto.task.v1.TaskService/CreateTask";
+        const result = await makeToneRequestCreate(url, {
+            workspace_id,
+            teamspace_id,
+            list_id,
+            parent_task_id,
+            title,
+            description,
+            assign_user_ids
+        });
+        
+        return {
+            content: [{
+                type: "text",
+                text: result
+            }]
+        };
+    }
+);
+
+server.tool(
     "update_task_title",
     "タスクのタイトルを更新します。",
     {
