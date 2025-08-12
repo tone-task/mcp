@@ -2,7 +2,7 @@
     "dxt_version": "0.1",
     "name": "tone-mcp",
     "display_name": "tone MCPサーバー",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "description": "toneのMCP Serverです。タスク管理サービスtoneのタスクにLLMがアクセスできます。",
     "icon": "assets/icon.png",
     "author": {
