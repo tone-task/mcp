@@ -624,6 +624,88 @@ server.tool(
     }
 );
 
+server.tool(
+    "get_task_templates",
+    "タスクテンプレート一覧を取得します。テンプレートとはタスクをひとまとまりにしたものです。",
+    {
+        workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool.")
+    },
+    async ({ workspace_id }) => {
+        const url = "/proto.task_template.v1.TaskTemplateService/GetTaskTemplates";
+        const data = await makeToneRequestGet(url, { workspace_id });
+        
+        if (typeof data === "string" || !data || !("taskTemplates" in data)) {
+            return {
+                content: [{
+                    type: "text",
+                    text: typeof data === "string" ? data : "タスクテンプレートを取得できませんでした。"
+                }]
+            };
+        }
+        
+        const templates = data.taskTemplates as Record<string, any>[];
+        if (!templates || templates.length === 0) {
+            return {
+                content: [{
+                    type: "text",
+                    text: "タスクテンプレートが見つかりませんでした。"
+                }]
+            };
+        }
+        
+        const templateList = templates.map((template: Record<string, any>) => {
+            const tasks = template.tasks || [];
+            const taskList = tasks.map((task: Record<string, any>) => 
+                `  - ${task.title || 'Unknown'} (${task.description || '説明なし'})`
+            ).join('\n');
+            
+            return `
+テンプレートID: ${template.id || 'Unknown'}
+テンプレート名: ${template.name || 'Unknown'}
+説明: ${template.description || 'なし'}
+作成日時: ${template.createdAt || 'Unknown'}
+更新日時: ${template.updatedAt || 'Unknown'}
+タスク数: ${tasks.length}
+タスク一覧:
+${taskList || '  なし'}`;
+        });
+        
+        return {
+            content: [{
+                type: "text",
+                text: templateList.join("\n---\n")
+            }]
+        };
+    }
+);
+
+server.tool(
+    "create_tasks_from_template",
+    "タスクテンプレートからタスクを作成します。",
+    {
+        workspace_id: z.string().describe("workspace id. you can get it from get_workspaces tool."),
+        teamspace_id: z.string().describe("teamspace id related to the list. you can get it from get_workspaces tool."),
+        list_id: z.string().describe("list id where tasks will be created. you can get it from get_workspaces tool."),
+        task_template_id: z.string().describe("task template id. you can get it from get_task_templates tool. Format: tt-xxxxxxxxxx")
+    },
+    async ({ workspace_id, teamspace_id, list_id, task_template_id }) => {
+        const url = "/proto.task_template.v1.TaskTemplateService/CreateTasksFromTaskTemplate";
+        const result = await makeToneRequestCreate(url, {
+            workspace_id,
+            teamspace_id,
+            list_id,
+            task_template_id
+        });
+        
+        return {
+            content: [{
+                type: "text",
+                text: result
+            }]
+        };
+    }
+);
+
 // Main function
 async function main() {
     const transport = new StdioServerTransport();
